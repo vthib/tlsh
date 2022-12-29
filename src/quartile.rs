@@ -1,9 +1,6 @@
 use std::cmp::Ordering;
 
-// from tlsh_impl.h, for BUCKETS_128 and CHECKSUM_1B
-const EFF_BUCKETS: usize = 128;
-
-pub fn get_quartiles(bucket: &[u32]) -> (u32, u32, u32) {
+pub fn get_quartiles<const EFF_BUCKETS: usize>(bucket: &[u32]) -> (u32, u32, u32) {
     let mut short_cut_left = [0; EFF_BUCKETS];
     let mut short_cut_right = [0; EFF_BUCKETS];
     let p1 = EFF_BUCKETS / 4 - 1;

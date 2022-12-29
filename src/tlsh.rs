@@ -5,29 +5,48 @@ use crate::util::{l_capturing, swap_byte};
 const SLIDING_WND_SIZE: usize = 5;
 const BUCKETS: usize = 256;
 
-// from tlsh_impl.h, for BUCKETS_128 and CHECKSUM_1B
-const CODE_SIZE: usize = 32;
-const TLSH_CHECKSUM_LEN: usize = 1;
-
-// from tlsh.h, for BUCKETS_128 and CHECKSUM_1B
-const TLSH_STRING_LEN_REQ: usize = 72;
-const MIN_DATA_LENGTH: usize = 50;
-
 const RNG_SIZE: usize = SLIDING_WND_SIZE;
 
-pub struct Tlsh {
+pub struct Tlsh<
+    const EFF_BUCKETS: usize,
+    const TLSH_CHECKSUM_LEN: usize,
+    const CODE_SIZE: usize,
+    const TLSH_STRING_LEN_REQ: usize,
+    const MIN_DATA_LENGTH: usize,
+> {
     a_bucket: [u32; BUCKETS],
     slide_window: [u8; SLIDING_WND_SIZE],
-    checksum: [u8; TLSH_CHECKSUM_LEN],
+    checksum: [u8; 3],
     data_len: usize,
 }
 
-impl Tlsh {
+impl<
+        const EFF_BUCKETS: usize,
+        const TLSH_CHECKSUM_LEN: usize,
+        const CODE_SIZE: usize,
+        const TLSH_STRING_LEN_REQ: usize,
+        const MIN_DATA_LENGTH: usize,
+    > Default
+    for Tlsh<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<
+        const EFF_BUCKETS: usize,
+        const TLSH_CHECKSUM_LEN: usize,
+        const CODE_SIZE: usize,
+        const TLSH_STRING_LEN_REQ: usize,
+        const MIN_DATA_LENGTH: usize,
+    > Tlsh<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
+{
     pub fn new() -> Self {
         Self {
             a_bucket: [0; BUCKETS],
             slide_window: [0; SLIDING_WND_SIZE],
-            checksum: [0; TLSH_CHECKSUM_LEN],
+            checksum: [0; 3],
             data_len: 0,
         }
     }
@@ -125,7 +144,7 @@ impl Tlsh {
             return String::new();
         }
 
-        let (q1, q2, q3) = get_quartiles(&self.a_bucket);
+        let (q1, q2, q3) = get_quartiles::<EFF_BUCKETS>(&self.a_bucket);
         // issue #79 - divide by 0 if q3 == 0
         if q3 == 0 {
             return String::new();
@@ -167,12 +186,18 @@ impl Tlsh {
         // TODO: is there an endianness issue here?
         let qb = ((q2_ratio << 4) as u8) | (q1_ratio as u8);
 
-        hash(self.checksum, lvalue, qb, &code, showvers)
+        hash::<TLSH_STRING_LEN_REQ>(
+            &self.checksum[..TLSH_CHECKSUM_LEN],
+            lvalue,
+            qb,
+            &code,
+            showvers,
+        )
     }
 }
 
-fn hash(
-    checksum: [u8; TLSH_CHECKSUM_LEN],
+fn hash<const TLSH_STRING_LEN_REQ: usize>(
+    checksum: &[u8],
     lvalue: u8,
     qb: u8,
     code: &[u8],
@@ -185,7 +210,7 @@ fn hash(
     }
 
     for k in checksum {
-        to_hex(&mut hash, swap_byte(k));
+        to_hex(&mut hash, swap_byte(*k));
     }
     to_hex(&mut hash, swap_byte(lvalue));
     to_hex(&mut hash, swap_byte(qb));

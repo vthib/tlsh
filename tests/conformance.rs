@@ -2,10 +2,12 @@ use std::collections::HashMap;
 use std::io::BufRead;
 use std::path::Path;
 
-#[test]
-fn test_conformance_files() {
+fn test<F>(path: &str, compute_hash: F)
+where
+    F: Fn(&[u8]) -> String,
+{
     // Build conformance results map
-    let f = std::fs::File::open("tests/assets/example_data.out").unwrap();
+    let f = std::fs::File::open(path).unwrap();
     let reader = std::io::BufReader::new(f);
     let expected_results = reader
         .lines()
@@ -24,17 +26,52 @@ fn test_conformance_files() {
         let contents =
             std::fs::read(&file).unwrap_or_else(|e| panic!("cannot read file {:?}: {}", file, e));
         let expected_hash = expected_results
-            .get(&dbg!(format!(
+            .get(&format!(
                 "example_data/{}",
                 Path::new(file.file_name().unwrap()).display()
-            )))
+            ))
             .unwrap();
 
-        // Test the rust crate computes the same
-        {
-            let mut tlsh = tlsh::Tlsh::new();
-            tlsh.update(&contents);
-            assert_eq!(&tlsh.finish(true), expected_hash);
-        }
+        assert_eq!(&compute_hash(&contents), expected_hash);
     }
+}
+
+macro_rules! do_test {
+    ($path:expr, $type:ty) => {{
+        test($path, |contents| {
+            let mut tlsh = <$type>::new();
+            tlsh.update(contents);
+            tlsh.finish(true)
+        })
+    }};
+}
+
+#[test]
+fn test_conformance_file_48_1() {
+    do_test!("tests/assets/example_data.out.48.1", tlsh::Tlsh48_1);
+}
+
+#[test]
+fn test_conformance_file_48_3() {
+    do_test!("tests/assets/example_data.out.48.3", tlsh::Tlsh48_3);
+}
+
+#[test]
+fn test_conformance_file_128_1() {
+    do_test!("tests/assets/example_data.out.128.1", tlsh::Tlsh128_1);
+}
+
+#[test]
+fn test_conformance_file_128_3() {
+    do_test!("tests/assets/example_data.out.128.3", tlsh::Tlsh128_3);
+}
+
+#[test]
+fn test_conformance_file_256_1() {
+    do_test!("tests/assets/example_data.out.256.1", tlsh::Tlsh256_1);
+}
+
+#[test]
+fn test_conformance_file_256_3() {
+    do_test!("tests/assets/example_data.out.256.3", tlsh::Tlsh256_3);
 }
