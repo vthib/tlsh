@@ -73,7 +73,7 @@ impl<
                 // TODO: CHECKSUM_0B
                 for k in 0..TLSH_CHECKSUM_LEN {
                     if k == 0 {
-                        self.checksum[k] = fast_b_mapping(
+                        self.checksum[k] = fast_b_mapping::<EFF_BUCKETS>(
                             1,
                             self.slide_window[j],
                             self.slide_window[j_1],
@@ -89,42 +89,42 @@ impl<
                     }
                 }
 
-                let r = fast_b_mapping(
+                let r = fast_b_mapping::<EFF_BUCKETS>(
                     49,
                     self.slide_window[j],
                     self.slide_window[j_1],
                     self.slide_window[j_2],
                 );
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping(
+                let r = fast_b_mapping::<EFF_BUCKETS>(
                     12,
                     self.slide_window[j],
                     self.slide_window[j_1],
                     self.slide_window[j_3],
                 );
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping(
+                let r = fast_b_mapping::<EFF_BUCKETS>(
                     178,
                     self.slide_window[j],
                     self.slide_window[j_2],
                     self.slide_window[j_3],
                 );
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping(
+                let r = fast_b_mapping::<EFF_BUCKETS>(
                     166,
                     self.slide_window[j],
                     self.slide_window[j_2],
                     self.slide_window[j_4],
                 );
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping(
+                let r = fast_b_mapping::<EFF_BUCKETS>(
                     84,
                     self.slide_window[j],
                     self.slide_window[j_1],
                     self.slide_window[j_4],
                 );
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping(
+                let r = fast_b_mapping::<EFF_BUCKETS>(
                     230,
                     self.slide_window[j],
                     self.slide_window[j_3],
@@ -157,7 +157,11 @@ impl<
             .take(CODE_SIZE * 4)
             .filter(|v| **v > 0)
             .count();
-        if nonzero <= 2 * CODE_SIZE {
+        if EFF_BUCKETS == 48 {
+            if nonzero < 18 {
+                return String::new();
+            }
+        } else if nonzero <= 2 * CODE_SIZE {
             return String::new();
         }
 

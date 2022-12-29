@@ -52,11 +52,6 @@ fn test_conformance_file_48_1() {
 }
 
 #[test]
-fn test_conformance_file_48_3() {
-    do_test!("tests/assets/example_data.out.48.3", tlsh::Tlsh48_3);
-}
-
-#[test]
 fn test_conformance_file_128_1() {
     do_test!("tests/assets/example_data.out.128.1", tlsh::Tlsh128_1);
 }
