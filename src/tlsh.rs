@@ -58,7 +58,6 @@ impl<
 
     /// Add bytes into the hasher.
     pub fn update(&mut self, data: &[u8]) {
-        // TODO: TLSH_CHECKSUM_LEN
         // TODO: TLSH_OPTION_THREADED | TLSH_OPTION_PRIVATE
 
         let mut j = self.data_len % RNG_SIZE;
@@ -73,7 +72,6 @@ impl<
                 let j_3 = (j + RNG_SIZE - 3) % RNG_SIZE;
                 let j_4 = (j + RNG_SIZE - 4) % RNG_SIZE;
 
-                // TODO: CHECKSUM_0B
                 for k in 0..TLSH_CHECKSUM_LEN {
                     if k == 0 {
                         self.checksum[k] = fast_b_mapping::<EFF_BUCKETS>(
