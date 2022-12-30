@@ -48,25 +48,25 @@ macro_rules! do_test {
 
 #[test]
 fn test_conformance_file_48_1() {
-    do_test!("tests/assets/example_data.out.48.1", tlsh::Tlsh48_1);
+    do_test!("tests/assets/example_data.out.48.1", tlsh2::Tlsh48_1);
 }
 
 #[test]
 fn test_conformance_file_128_1() {
-    do_test!("tests/assets/example_data.out.128.1", tlsh::Tlsh128_1);
+    do_test!("tests/assets/example_data.out.128.1", tlsh2::Tlsh128_1);
 }
 
 #[test]
 fn test_conformance_file_128_3() {
-    do_test!("tests/assets/example_data.out.128.3", tlsh::Tlsh128_3);
+    do_test!("tests/assets/example_data.out.128.3", tlsh2::Tlsh128_3);
 }
 
 #[test]
 fn test_conformance_file_256_1() {
-    do_test!("tests/assets/example_data.out.256.1", tlsh::Tlsh256_1);
+    do_test!("tests/assets/example_data.out.256.1", tlsh2::Tlsh256_1);
 }
 
 #[test]
 fn test_conformance_file_256_3() {
-    do_test!("tests/assets/example_data.out.256.3", tlsh::Tlsh256_3);
+    do_test!("tests/assets/example_data.out.256.3", tlsh2::Tlsh256_3);
 }

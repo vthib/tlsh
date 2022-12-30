@@ -1,7 +1,13 @@
 [package]
-name = "tlsh"
+name = "tlsh2"
 version = "0.1.0"
 edition = "2021"
+description = "A rust implementation of the TLSH algorithm"
+repository = "https://github.com/vthib/tlsh"
+readme = "README.md"
+license = "Apache-2.0 OR BSD-3-Clause"
+keywords = ["tlsh", "hash", "digest", "similarity"]
+categories = ["algorithms"]
 
 [dependencies]
 static_assertions = "1.1.0"

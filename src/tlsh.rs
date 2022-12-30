@@ -7,7 +7,11 @@ const BUCKETS: usize = 256;
 
 const RNG_SIZE: usize = SLIDING_WND_SIZE;
 
-pub struct Tlsh<
+/// Core TLSH hasher, generic on several parameters.
+///
+/// You should never provide your own values for the generics, but instead use the pre-configured
+/// types such as [`crate::Tlsh256_1`] or [`crate::Tlsh128_3`].
+pub struct TlshCore<
     const EFF_BUCKETS: usize,
     const TLSH_CHECKSUM_LEN: usize,
     const CODE_SIZE: usize,
@@ -27,7 +31,7 @@ impl<
         const TLSH_STRING_LEN_REQ: usize,
         const MIN_DATA_LENGTH: usize,
     > Default
-    for Tlsh<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
+    for TlshCore<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
 {
     fn default() -> Self {
         Self::new()
@@ -40,8 +44,9 @@ impl<
         const CODE_SIZE: usize,
         const TLSH_STRING_LEN_REQ: usize,
         const MIN_DATA_LENGTH: usize,
-    > Tlsh<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
+    > TlshCore<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
 {
+    /// Create a new TLSH hasher.
     pub fn new() -> Self {
         Self {
             a_bucket: [0; BUCKETS],
@@ -51,6 +56,7 @@ impl<
         }
     }
 
+    /// Add bytes into the hasher.
     pub fn update(&mut self, data: &[u8]) {
         // TODO: TLSH_CHECKSUM_LEN
         // TODO: TLSH_OPTION_THREADED | TLSH_OPTION_PRIVATE
@@ -139,6 +145,9 @@ impl<
         self.data_len += data.len();
     }
 
+    /// Finish the hashing, returning the TLSH hash string.
+    ///
+    /// if `showvers` is true, the hash is prefixed with the string `T1`.
     pub fn finish(self, showvers: bool) -> String {
         if self.data_len < MIN_DATA_LENGTH {
             return String::new();
