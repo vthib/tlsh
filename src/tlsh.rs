@@ -68,9 +68,6 @@ impl<
             self.slide_window[j] = *b;
 
             if fed_len >= 4 {
-                // Only wrote code valid for SLIDING_WND_SIZE == 5, so assert it.
-                // Need to align to orig impl if this value changes.
-                static_assertions::const_assert_eq!(SLIDING_WND_SIZE, 5);
                 let j_1 = (j + RNG_SIZE - 1) % RNG_SIZE;
                 let j_2 = (j + RNG_SIZE - 2) % RNG_SIZE;
                 let j_3 = (j + RNG_SIZE - 3) % RNG_SIZE;
