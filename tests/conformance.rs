@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 use std::io::BufRead;
+use std::path::{Path, PathBuf};
 
 fn test_hash<F>(path: &str, compute_hash: F)
 where
@@ -44,7 +46,7 @@ do_hash_test!(test_hash_256_3, "256.3", tlsh2::Tlsh256_3);
 
 fn test_diff<F>(path: &str, compute_diff: F)
 where
-    F: Fn(&[u8], &[u8]) -> i32,
+    F: Fn(&Path, &Path) -> i32,
 {
     let f = std::fs::File::open(path).unwrap();
     let reader = std::io::BufReader::new(f);
@@ -55,32 +57,50 @@ where
         let path2 = line.next().unwrap();
         let expected_score = line.next().unwrap().parse::<i32>().unwrap();
 
-        let path1 = format!("tests/assets/tlsh/{}", path1);
-        let path2 = format!("tests/assets/tlsh/{}", path2);
-
-        let contents1 =
-            std::fs::read(&path1).unwrap_or_else(|e| panic!("cannot read file {:?}: {}", path1, e));
-        let contents2 =
-            std::fs::read(&path2).unwrap_or_else(|e| panic!("cannot read file {:?}: {}", path2, e));
-
-        assert_eq!(compute_diff(&contents1, &contents2), expected_score);
+        assert_eq!(
+            compute_diff(&Path::new(path1), &Path::new(path2)),
+            expected_score
+        );
     }
+}
+
+fn build_cache<F, T>(f: F) -> HashMap<PathBuf, T>
+where
+    F: Fn(&[u8]) -> T,
+{
+    glob::glob("tests/assets/tlsh/example_data/*")
+        .unwrap()
+        .map(|path| {
+            let path = path.unwrap();
+            let contents = std::fs::read(&path).unwrap();
+            (
+                path.strip_prefix("tests/assets/tlsh")
+                    .unwrap()
+                    .to_path_buf(),
+                f(&contents),
+            )
+        })
+        .collect()
 }
 
 macro_rules! do_diff_test {
     ($testname:ident, $name:expr, $type:ty, $len_diff:expr) => {
         #[test]
         fn $testname() {
+            let cache = build_cache(|contents| {
+                let mut tlsh = <$type>::new();
+                tlsh.update(contents);
+                tlsh
+            });
+
             test_diff(
                 &format!(
                     "tests/assets/tlsh/exp/example_data.{}.xref.scores_EXP",
                     $name
                 ),
-                |contents1, contents2| {
-                    let mut tlsh1 = <$type>::new();
-                    tlsh1.update(contents1);
-                    let mut tlsh2 = <$type>::new();
-                    tlsh2.update(contents2);
+                |path1, path2| {
+                    let tlsh1 = cache.get(path1).unwrap();
+                    let tlsh2 = cache.get(path2).unwrap();
                     tlsh1.diff(&tlsh2, $len_diff)
                 },
             )
