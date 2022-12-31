@@ -16,7 +16,7 @@ where
         let expected_score = line.next().unwrap().parse::<i32>().unwrap();
 
         assert_eq!(
-            compute_diff(&Path::new(path1), &Path::new(path2)),
+            compute_diff(Path::new(path1), Path::new(path2)),
             expected_score
         );
     }
