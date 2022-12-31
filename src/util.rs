@@ -44,6 +44,7 @@ pub fn swap_byte(c: u8) -> u8 {
     byte
 }
 
+#[cfg(feature = "diff")]
 pub fn mod_diff(x: u8, y: u8, r: u32) -> i32 {
     let dl: i32;
     let dr: i32;
@@ -60,6 +61,7 @@ pub fn mod_diff(x: u8, y: u8, r: u32) -> i32 {
     std::cmp::min(dl, dr)
 }
 
+#[cfg(feature = "diff")]
 pub fn h_distance(x: &[u8], y: &[u8]) -> i32 {
     x.iter()
         .zip(y.iter())
@@ -67,6 +69,7 @@ pub fn h_distance(x: &[u8], y: &[u8]) -> i32 {
         .sum()
 }
 
+#[cfg(feature = "diff")]
 const BIT_PAIRS_DIFF_TABLE: [[u8; 256]; 256] = [
     [
         0, 1, 2, 6, 1, 2, 3, 7, 2, 3, 4, 8, 6, 7, 8, 12, 1, 2, 3, 7, 2, 3, 4, 8, 3, 4, 5, 9, 7, 8,

@@ -1,6 +1,6 @@
 use crate::pearson::{b_mapping, fast_b_mapping};
 use crate::quartile::get_quartiles;
-use crate::util::{h_distance, l_capturing, mod_diff, swap_byte};
+use crate::util::{l_capturing, swap_byte};
 
 const SLIDING_WND_SIZE: usize = 5;
 const BUCKETS: usize = 256;
@@ -209,7 +209,10 @@ impl<
     }
 
     /// Compute the difference between two TLSH
+    #[cfg(feature = "diff")]
     pub fn diff(&self, other: &Self, len_diff: bool) -> i32 {
+        use crate::util::{h_distance, mod_diff};
+
         const LENGTH_MULT: i32 = 12;
         const QRATIO_MULT: i32 = 12;
         const RANGE_LVALUE: u32 = 256;
