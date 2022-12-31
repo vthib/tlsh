@@ -48,7 +48,7 @@ macro_rules! do_diff_test {
             let cache = build_cache(|contents| {
                 let mut tlsh = <$type>::new();
                 tlsh.update(contents);
-                tlsh
+                tlsh.build().unwrap()
             });
 
             test_diff(

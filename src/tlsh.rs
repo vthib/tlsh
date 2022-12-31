@@ -20,7 +20,7 @@ pub struct TlshCore<
 > {
     a_bucket: [u32; BUCKETS],
     slide_window: [u8; SLIDING_WND_SIZE],
-    checksum: [u8; 3],
+    checksum: [u8; TLSH_CHECKSUM_LEN],
     data_len: usize,
 }
 
@@ -51,7 +51,7 @@ impl<
         Self {
             a_bucket: [0; BUCKETS],
             slide_window: [0; SLIDING_WND_SIZE],
-            checksum: [0; 3],
+            checksum: [0; TLSH_CHECKSUM_LEN],
             data_len: 0,
         }
     }
@@ -140,7 +140,8 @@ impl<
         self.data_len += data.len();
     }
 
-    fn get_values(&self) -> Option<Values> {
+    /// Generate a TLSH object, or None if the object is not valid.
+    pub fn build(&self) -> Option<Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ>> {
         if self.data_len < MIN_DATA_LENGTH {
             return None;
         }
@@ -189,23 +190,48 @@ impl<
         let q1_ratio = (((((q1 * 100) as f32) / (q3 as f32)) as u32) % 16) as u8;
         let q2_ratio = (((((q2 * 100) as f32) / (q3 as f32)) as u32) % 16) as u8;
 
-        Some(Values {
+        Some(Tlsh {
             lvalue,
             q1_ratio,
             q2_ratio,
+            checksum: self.checksum,
             code,
         })
     }
+}
 
-    /// Finish the hashing, returning the TLSH hash string.
-    ///
-    /// if `showvers` is true, the hash is prefixed with the string `T1`.
-    pub fn finish(self, showvers: bool) -> String {
-        self.get_values()
-            .map(|values| {
-                hash::<TLSH_STRING_LEN_REQ>(&self.checksum[..TLSH_CHECKSUM_LEN], &values, showvers)
-            })
-            .unwrap_or_default()
+pub struct Tlsh<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize> {
+    lvalue: u8,
+    q1_ratio: u8,
+    q2_ratio: u8,
+    checksum: [u8; TLSH_CHECKSUM_LEN],
+    code: Vec<u8>,
+}
+
+impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize>
+    Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ>
+{
+    pub fn hash(&self, showvers: bool) -> String {
+        let mut hash = String::with_capacity(TLSH_STRING_LEN_REQ);
+
+        if showvers {
+            hash.push_str("T1");
+        }
+
+        for k in &self.checksum {
+            to_hex(&mut hash, swap_byte(*k));
+        }
+        to_hex(&mut hash, swap_byte(self.lvalue));
+
+        // TODO: is there an endianness issue here?
+        let qb = (self.q2_ratio << 4) | self.q1_ratio;
+        to_hex(&mut hash, swap_byte(qb));
+
+        for c in self.code.iter().rev() {
+            to_hex(&mut hash, *c);
+        }
+
+        hash
     }
 
     /// Compute the difference between two TLSH
@@ -218,18 +244,9 @@ impl<
         const RANGE_LVALUE: u32 = 256;
         const RANGE_QRATIO: u32 = 16;
 
-        let values1 = match self.get_values() {
-            Some(v) => v,
-            None => return 0,
-        };
-        let values2 = match other.get_values() {
-            Some(v) => v,
-            None => return 0,
-        };
-
         let mut diff;
         if len_diff {
-            let ldiff = mod_diff(values1.lvalue, values2.lvalue, RANGE_LVALUE);
+            let ldiff = mod_diff(self.lvalue, other.lvalue, RANGE_LVALUE);
             if ldiff == 0 {
                 diff = 0;
             } else if ldiff == 1 {
@@ -241,14 +258,14 @@ impl<
             diff = 0;
         }
 
-        let q1diff = mod_diff(values1.q1_ratio, values2.q1_ratio, RANGE_QRATIO);
+        let q1diff = mod_diff(self.q1_ratio, other.q1_ratio, RANGE_QRATIO);
         if q1diff <= 1 {
             diff += q1diff;
         } else {
             diff += (q1diff - 1) * QRATIO_MULT;
         }
 
-        let q2diff = mod_diff(values1.q2_ratio, values2.q2_ratio, RANGE_QRATIO);
+        let q2diff = mod_diff(self.q2_ratio, other.q2_ratio, RANGE_QRATIO);
         if q2diff <= 1 {
             diff += q2diff;
         } else {
@@ -262,44 +279,10 @@ impl<
             }
         }
 
-        diff += h_distance(&values1.code, &values2.code);
+        diff += h_distance(&self.code, &other.code);
 
         diff
     }
-}
-
-struct Values {
-    lvalue: u8,
-    q1_ratio: u8,
-    q2_ratio: u8,
-    code: Vec<u8>,
-}
-
-fn hash<const TLSH_STRING_LEN_REQ: usize>(
-    checksum: &[u8],
-    values: &Values,
-    showvers: bool,
-) -> String {
-    let mut hash = String::with_capacity(TLSH_STRING_LEN_REQ);
-
-    if showvers {
-        hash.push_str("T1");
-    }
-
-    for k in checksum {
-        to_hex(&mut hash, swap_byte(*k));
-    }
-    to_hex(&mut hash, swap_byte(values.lvalue));
-
-    // TODO: is there an endianness issue here?
-    let qb = (values.q2_ratio << 4) | values.q1_ratio;
-    to_hex(&mut hash, swap_byte(qb));
-
-    for c in values.code.iter().rev() {
-        to_hex(&mut hash, *c);
-    }
-
-    hash
 }
 
 fn to_hex(s: &mut String, b: u8) {

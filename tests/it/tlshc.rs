@@ -4,7 +4,10 @@
 fn check(bytes: &[u8], expected_hash: &str) {
     let mut tlsh = tlsh2::Tlsh::new();
     tlsh.update(bytes);
-    assert_eq!(tlsh.finish(true), expected_hash);
+    assert_eq!(
+        tlsh.build().map(|v| v.hash(true)).unwrap_or_default(),
+        expected_hash
+    );
 }
 
 #[test]
