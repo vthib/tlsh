@@ -21,54 +21,26 @@ where
 }
 
 macro_rules! do_hash_test {
-    ($path:expr, $type:ty) => {{
-        test_hash($path, |contents| {
-            let mut tlsh = <$type>::new();
-            tlsh.update(contents);
-            tlsh.finish(true)
-        })
-    }};
+    ($testname:ident, $name:expr, $type:ty) => {
+        #[test]
+        fn $testname() {
+            test_hash(
+                &format!("tests/assets/tlsh/exp/example_data.{}.len.out_EXP", $name),
+                |contents| {
+                    let mut tlsh = <$type>::new();
+                    tlsh.update(contents);
+                    tlsh.finish(true)
+                },
+            )
+        }
+    };
 }
 
-#[test]
-fn test_hash_48_1() {
-    do_hash_test!(
-        "tests/assets/tlsh/exp/example_data.48.1.len.out_EXP",
-        tlsh2::Tlsh48_1
-    );
-}
-
-#[test]
-fn test_hash_128_1() {
-    do_hash_test!(
-        "tests/assets/tlsh/exp/example_data.128.1.len.out_EXP",
-        tlsh2::Tlsh128_1
-    );
-}
-
-#[test]
-fn test_hash_128_3() {
-    do_hash_test!(
-        "tests/assets/tlsh/exp/example_data.128.3.len.out_EXP",
-        tlsh2::Tlsh128_3
-    );
-}
-
-#[test]
-fn test_hash_256_1() {
-    do_hash_test!(
-        "tests/assets/tlsh/exp/example_data.256.1.len.out_EXP",
-        tlsh2::Tlsh256_1
-    );
-}
-
-#[test]
-fn test_hash_256_3() {
-    do_hash_test!(
-        "tests/assets/tlsh/exp/example_data.256.3.len.out_EXP",
-        tlsh2::Tlsh256_3
-    );
-}
+do_hash_test!(test_hash_48_1, "48.1", tlsh2::Tlsh48_1);
+do_hash_test!(test_hash_128_1, "128.1", tlsh2::Tlsh128_1);
+do_hash_test!(test_hash_128_3, "128.3", tlsh2::Tlsh128_3);
+do_hash_test!(test_hash_256_1, "256.1", tlsh2::Tlsh256_1);
+do_hash_test!(test_hash_256_3, "256.3", tlsh2::Tlsh256_3);
 
 fn test_diff<F>(path: &str, compute_diff: F)
 where
@@ -96,103 +68,33 @@ where
 }
 
 macro_rules! do_diff_test {
-    ($path:expr, $type:ty, $len_diff:expr) => {{
-        test_diff($path, |contents1, contents2| {
-            let mut tlsh1 = <$type>::new();
-            tlsh1.update(contents1);
-            let mut tlsh2 = <$type>::new();
-            tlsh2.update(contents2);
-            tlsh1.diff(&tlsh2, $len_diff)
-        })
-    }};
+    ($testname:ident, $name:expr, $type:ty, $len_diff:expr) => {
+        #[test]
+        fn $testname() {
+            test_diff(
+                &format!(
+                    "tests/assets/tlsh/exp/example_data.{}.xref.scores_EXP",
+                    $name
+                ),
+                |contents1, contents2| {
+                    let mut tlsh1 = <$type>::new();
+                    tlsh1.update(contents1);
+                    let mut tlsh2 = <$type>::new();
+                    tlsh2.update(contents2);
+                    tlsh1.diff(&tlsh2, $len_diff)
+                },
+            )
+        }
+    };
 }
 
-#[test]
-fn test_diff_48_1_len() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.48.1.len.xref.scores_EXP",
-        tlsh2::Tlsh48_1,
-        true
-    );
-}
-
-#[test]
-fn test_diff_48_1_xlen() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.48.1.xlen.xref.scores_EXP",
-        tlsh2::Tlsh48_1,
-        false
-    );
-}
-
-#[test]
-fn test_diff_128_1_len() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.128.1.len.xref.scores_EXP",
-        tlsh2::Tlsh128_1,
-        true
-    );
-}
-
-#[test]
-fn test_diff_128_1_xlen() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.128.1.xlen.xref.scores_EXP",
-        tlsh2::Tlsh128_1,
-        false
-    );
-}
-
-#[test]
-fn test_diff_128_3_len() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.128.3.len.xref.scores_EXP",
-        tlsh2::Tlsh128_3,
-        true
-    );
-}
-
-#[test]
-fn test_diff_128_3_xlen() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.128.3.xlen.xref.scores_EXP",
-        tlsh2::Tlsh128_3,
-        false
-    );
-}
-
-#[test]
-fn test_diff_256_1_len() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.256.1.len.xref.scores_EXP",
-        tlsh2::Tlsh256_1,
-        true
-    );
-}
-
-#[test]
-fn test_diff_256_1_xlen() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.256.1.xlen.xref.scores_EXP",
-        tlsh2::Tlsh256_1,
-        false
-    );
-}
-
-#[test]
-fn test_diff_256_3_len() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.256.3.len.xref.scores_EXP",
-        tlsh2::Tlsh256_3,
-        true
-    );
-}
-
-#[test]
-fn test_diff_256_3_xlen() {
-    do_diff_test!(
-        "tests/assets/tlsh/exp/example_data.256.3.xlen.xref.scores_EXP",
-        tlsh2::Tlsh256_3,
-        false
-    );
-}
+do_diff_test!(test_diff_48_1_len, "48.1.len", tlsh2::Tlsh48_1, true);
+do_diff_test!(test_diff_48_1_xlen, "48.1.xlen", tlsh2::Tlsh48_1, false);
+do_diff_test!(test_diff_128_1_len, "128.1.len", tlsh2::Tlsh128_1, true);
+do_diff_test!(test_diff_128_1_xlen, "128.1.xlen", tlsh2::Tlsh128_1, false);
+do_diff_test!(test_diff_128_3_len, "128.3.len", tlsh2::Tlsh128_3, true);
+do_diff_test!(test_diff_128_3_xlen, "128.3.xlen", tlsh2::Tlsh128_3, false);
+do_diff_test!(test_diff_256_1_len, "256.1.len", tlsh2::Tlsh256_1, true);
+do_diff_test!(test_diff_256_1_xlen, "256.1.xlen", tlsh2::Tlsh256_1, false);
+do_diff_test!(test_diff_256_3_len, "256.3.len", tlsh2::Tlsh256_3, true);
+do_diff_test!(test_diff_256_3_xlen, "256.3.xlen", tlsh2::Tlsh256_3, false);
