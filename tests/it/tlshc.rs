@@ -2,7 +2,7 @@
 // See <https://github.com/avast/tlshc/blob/bb91fef822/tests/test_vectors.cpp>
 
 fn check(bytes: &[u8], expected_hash: &str) {
-    let mut tlsh = tlsh2::Tlsh::new();
+    let mut tlsh = tlsh2::TlshDefaultBuilder::new();
     tlsh.update(bytes);
     assert_eq!(
         tlsh.build().map(|v| v.hash(true)).unwrap_or_default(),

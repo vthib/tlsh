@@ -36,8 +36,8 @@ macro_rules! do_hash_test {
     };
 }
 
-do_hash_test!(test_hash_48_1, "48.1", tlsh2::Tlsh48_1);
-do_hash_test!(test_hash_128_1, "128.1", tlsh2::Tlsh128_1);
-do_hash_test!(test_hash_128_3, "128.3", tlsh2::Tlsh128_3);
-do_hash_test!(test_hash_256_1, "256.1", tlsh2::Tlsh256_1);
-do_hash_test!(test_hash_256_3, "256.3", tlsh2::Tlsh256_3);
+do_hash_test!(test_hash_48_1, "48.1", tlsh2::TlshBuilder48_1);
+do_hash_test!(test_hash_128_1, "128.1", tlsh2::TlshBuilder128_1);
+do_hash_test!(test_hash_128_3, "128.3", tlsh2::TlshBuilder128_3);
+do_hash_test!(test_hash_256_1, "256.1", tlsh2::TlshBuilder256_1);
+do_hash_test!(test_hash_256_3, "256.3", tlsh2::TlshBuilder256_3);

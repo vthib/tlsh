@@ -66,13 +66,58 @@ macro_rules! do_diff_test {
     };
 }
 
-do_diff_test!(test_diff_48_1_len, "48.1.len", tlsh2::Tlsh48_1, true);
-do_diff_test!(test_diff_48_1_xlen, "48.1.xlen", tlsh2::Tlsh48_1, false);
-do_diff_test!(test_diff_128_1_len, "128.1.len", tlsh2::Tlsh128_1, true);
-do_diff_test!(test_diff_128_1_xlen, "128.1.xlen", tlsh2::Tlsh128_1, false);
-do_diff_test!(test_diff_128_3_len, "128.3.len", tlsh2::Tlsh128_3, true);
-do_diff_test!(test_diff_128_3_xlen, "128.3.xlen", tlsh2::Tlsh128_3, false);
-do_diff_test!(test_diff_256_1_len, "256.1.len", tlsh2::Tlsh256_1, true);
-do_diff_test!(test_diff_256_1_xlen, "256.1.xlen", tlsh2::Tlsh256_1, false);
-do_diff_test!(test_diff_256_3_len, "256.3.len", tlsh2::Tlsh256_3, true);
-do_diff_test!(test_diff_256_3_xlen, "256.3.xlen", tlsh2::Tlsh256_3, false);
+do_diff_test!(test_diff_48_1_len, "48.1.len", tlsh2::TlshBuilder48_1, true);
+do_diff_test!(
+    test_diff_48_1_xlen,
+    "48.1.xlen",
+    tlsh2::TlshBuilder48_1,
+    false
+);
+do_diff_test!(
+    test_diff_128_1_len,
+    "128.1.len",
+    tlsh2::TlshBuilder128_1,
+    true
+);
+do_diff_test!(
+    test_diff_128_1_xlen,
+    "128.1.xlen",
+    tlsh2::TlshBuilder128_1,
+    false
+);
+do_diff_test!(
+    test_diff_128_3_len,
+    "128.3.len",
+    tlsh2::TlshBuilder128_3,
+    true
+);
+do_diff_test!(
+    test_diff_128_3_xlen,
+    "128.3.xlen",
+    tlsh2::TlshBuilder128_3,
+    false
+);
+do_diff_test!(
+    test_diff_256_1_len,
+    "256.1.len",
+    tlsh2::TlshBuilder256_1,
+    true
+);
+do_diff_test!(
+    test_diff_256_1_xlen,
+    "256.1.xlen",
+    tlsh2::TlshBuilder256_1,
+    false
+);
+do_diff_test!(
+    test_diff_256_3_len,
+    "256.3.len",
+    tlsh2::TlshBuilder256_3,
+    true
+);
+do_diff_test!(
+    test_diff_256_3_xlen,
+    "256.3.xlen",
+    tlsh2::TlshBuilder256_3,
+    false
+);

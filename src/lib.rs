@@ -13,19 +13,19 @@ mod quartile;
 mod tlsh;
 mod util;
 
-pub use crate::tlsh::TlshCore;
+pub use crate::tlsh::{Tlsh, TlshBuilder};
 
 /// Hasher with 256 buckets and a 1 byte checksum.
-pub type Tlsh256_1 = crate::tlsh::TlshCore<256, 1, 64, 136, 50>;
+pub type TlshBuilder256_1 = TlshBuilder<256, 1, 64, 136, 50>;
 /// Hasher with 128 buckets and a 1 byte checksum.
-pub type Tlsh128_1 = crate::tlsh::TlshCore<128, 1, 32, 72, 50>;
+pub type TlshBuilder128_1 = TlshBuilder<128, 1, 32, 72, 50>;
 /// Hasher with 48 buckets and a 1 byte checksum.
-pub type Tlsh48_1 = crate::tlsh::TlshCore<48, 1, 12, 30, 10>;
+pub type TlshBuilder48_1 = TlshBuilder<48, 1, 12, 30, 10>;
 
 /// Hasher with 256 buckets and a 3 bytes checksum.
-pub type Tlsh256_3 = crate::tlsh::TlshCore<256, 3, 64, 136, 50>;
+pub type TlshBuilder256_3 = TlshBuilder<256, 3, 64, 136, 50>;
 /// Hasher with 128 buckets and a 3 bytes checksum.
-pub type Tlsh128_3 = crate::tlsh::TlshCore<128, 3, 32, 72, 50>;
+pub type TlshBuilder128_3 = TlshBuilder<128, 3, 32, 72, 50>;
 
 /// Default hasher, using 128 buckets and a 1 byte checksum.
-pub type Tlsh = Tlsh128_1;
+pub type TlshDefaultBuilder = TlshBuilder128_1;

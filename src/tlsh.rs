@@ -11,7 +11,7 @@ const RNG_SIZE: usize = SLIDING_WND_SIZE;
 ///
 /// You should never provide your own values for the generics, but instead use the pre-configured
 /// types such as [`crate::Tlsh256_1`] or [`crate::Tlsh128_3`].
-pub struct TlshCore<
+pub struct TlshBuilder<
     const EFF_BUCKETS: usize,
     const TLSH_CHECKSUM_LEN: usize,
     const CODE_SIZE: usize,
@@ -31,7 +31,7 @@ impl<
         const TLSH_STRING_LEN_REQ: usize,
         const MIN_DATA_LENGTH: usize,
     > Default
-    for TlshCore<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
+    for TlshBuilder<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
 {
     fn default() -> Self {
         Self::new()
@@ -44,7 +44,7 @@ impl<
         const CODE_SIZE: usize,
         const TLSH_STRING_LEN_REQ: usize,
         const MIN_DATA_LENGTH: usize,
-    > TlshCore<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
+    > TlshBuilder<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
 {
     /// Create a new TLSH hasher.
     pub fn new() -> Self {
@@ -200,6 +200,7 @@ impl<
     }
 }
 
+/// TLSH object.
 pub struct Tlsh<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize> {
     lvalue: u8,
     q1_ratio: u8,
@@ -211,6 +212,9 @@ pub struct Tlsh<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize
 impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize>
     Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ>
 {
+    /// Compute the hash of a TLSH.
+    ///
+    /// If `showvers` is true, the hash is prefixed by `T1`.
     pub fn hash(&self, showvers: bool) -> String {
         let mut hash = String::with_capacity(TLSH_STRING_LEN_REQ);
 
@@ -234,7 +238,7 @@ impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize>
         hash
     }
 
-    /// Compute the difference between two TLSH
+    /// Compute the distance between two TLSH.
     #[cfg(feature = "diff")]
     pub fn diff(&self, other: &Self, len_diff: bool) -> i32 {
         use crate::util::{h_distance, mod_diff};
