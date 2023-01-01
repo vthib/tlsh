@@ -7,10 +7,10 @@ const SLIDING_WND_SIZE: usize = 5;
 
 const RNG_SIZE: usize = SLIDING_WND_SIZE;
 
-/// Core TLSH hasher, generic on several parameters.
+/// Builder object, processing streams of bytes to generate [`Tlsh`] objects.
 ///
 /// You should never provide your own values for the generics, but instead use the pre-configured
-/// types such as [`crate::Tlsh256_1`] or [`crate::Tlsh128_3`].
+/// types such as [`crate::TlshBuilder256_1`] or [`crate::TlshBuilder128_3`].
 pub struct TlshBuilder<
     const EFF_BUCKETS: usize,
     const TLSH_CHECKSUM_LEN: usize,
@@ -46,7 +46,7 @@ impl<
         const MIN_DATA_LENGTH: usize,
     > TlshBuilder<EFF_BUCKETS, TLSH_CHECKSUM_LEN, CODE_SIZE, TLSH_STRING_LEN_REQ, MIN_DATA_LENGTH>
 {
-    /// Create a new TLSH hasher.
+    /// Create a new TLSH builder.
     pub fn new() -> Self {
         Self {
             a_bucket: [0; BUCKETS],
@@ -56,7 +56,28 @@ impl<
         }
     }
 
-    /// Add bytes into the hasher.
+    /// Generate a [`Tlsh`] object from a given byte slice.
+    ///
+    /// This is a shorthand for building a [`Tlsh`] object from a single
+    /// byte slice, it is equivalent to:
+    ///
+    /// ```
+    /// let data = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit";
+    /// let tlsh = tlsh2::TlshDefaultBuilder::build_from(data);
+    /// // equivalent to
+    /// let mut builder = tlsh2::TlshDefaultBuilder::new();
+    /// builder.update(data);
+    /// let tlsh = builder.build();
+    /// ```
+    pub fn build_from(
+        data: &[u8],
+    ) -> Option<Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ, CODE_SIZE>> {
+        let mut builder = Self::new();
+        builder.update(data);
+        builder.build()
+    }
+
+    /// Add bytes into the builder.
     pub fn update(&mut self, data: &[u8]) {
         // TODO: TLSH_OPTION_THREADED | TLSH_OPTION_PRIVATE
 
@@ -140,7 +161,7 @@ impl<
         self.data_len += data.len();
     }
 
-    /// Generate a TLSH object, or None if the object is not valid.
+    /// Generate a [`Tlsh`] object, or None if the object is not valid.
     pub fn build(&self) -> Option<Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ, CODE_SIZE>> {
         if self.data_len < MIN_DATA_LENGTH {
             return None;
@@ -196,7 +217,7 @@ impl<
     }
 }
 
-/// TLSH object.
+/// TLSH object, from which a hash or a distance can be computed.
 pub struct Tlsh<
     const TLSH_CHECKSUM_LEN: usize,
     const TLSH_STRING_LEN_REQ: usize,
@@ -215,6 +236,20 @@ impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const COD
     /// Compute the hash of a TLSH.
     ///
     /// If `showvers` is true, the hash is prefixed by `T1`.
+    ///
+    /// ```
+    /// let data = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit";
+    /// let tlsh = tlsh2::TlshDefaultBuilder::build_from(data)
+    ///     .expect("should have generated a TLSH");
+    /// assert_eq!(
+    ///     tlsh.hash(false).as_slice(),
+    ///     b"2D900249414E0BD59A46503F3ADA802AE50825242B2590561CF690599112214C051556\0\0",
+    /// );
+    /// assert_eq!(
+    ///     tlsh.hash(true).as_slice(),
+    ///     b"T12D900249414E0BD59A46503F3ADA802AE50825242B2590561CF690599112214C051556",
+    /// );
+    /// ```
     pub fn hash(&self, showvers: bool) -> [u8; TLSH_STRING_LEN_REQ] {
         let mut hash = [0; TLSH_STRING_LEN_REQ];
 
@@ -241,7 +276,31 @@ impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const COD
         hash
     }
 
-    /// Compute the distance between two TLSH.
+    /// Compute the difference between two TLSH.
+    ///
+    /// The len_diff parameter specifies if the file length is to be included in
+    /// the difference calculation (len_diff=true) or if it is to be excluded
+    /// (len_diff=false).
+    ///
+    /// In general, the length should be considered in the difference calculation,
+    /// but there could be applications where a part of the adversarial activity
+    /// might be to add a lot of content.
+    /// For example to add 1 million zero bytes at the end of a file. In that case,
+    /// the caller would want to exclude the length from the calculation.
+    ///
+    /// ```
+    /// let data1 = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit";
+    /// let tlsh1 = tlsh2::TlshDefaultBuilder::build_from(data1)
+    ///     .expect("should have generated a TLSH");
+    /// let data2 = b"Duis aute irure dolor in reprehenderit in voluptate velit \
+    ///     esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat \
+    ///     cupidatat non proident, sunt in culpa qui officia";
+    /// let tlsh2 = tlsh2::TlshDefaultBuilder::build_from(data2)
+    ///     .expect("should have generated a TLSH");
+    ///
+    /// assert_eq!(tlsh1.diff(&tlsh2, false), 244);
+    /// assert_eq!(tlsh1.diff(&tlsh2, true), 280);
+    /// ```
     #[cfg(feature = "diff")]
     pub fn diff(&self, other: &Self, len_diff: bool) -> i32 {
         use crate::util::{h_distance, mod_diff};
