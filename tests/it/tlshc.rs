@@ -5,7 +5,9 @@ fn check(bytes: &[u8], expected_hash: &str) {
     let mut tlsh = tlsh2::TlshDefaultBuilder::new();
     tlsh.update(bytes);
     assert_eq!(
-        tlsh.build().map(|v| v.hash(true)).unwrap_or_default(),
+        tlsh.build()
+            .map(|v| String::from_utf8(v.hash(true).to_vec()).unwrap())
+            .unwrap_or_default(),
         expected_hash
     );
 }

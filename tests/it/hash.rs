@@ -29,7 +29,9 @@ macro_rules! do_hash_test {
                 |contents| {
                     let mut tlsh = <$type>::new();
                     tlsh.update(contents);
-                    tlsh.build().map(|v| v.hash(true)).unwrap_or_default()
+                    tlsh.build()
+                        .map(|v| String::from_utf8(v.hash(true).to_vec()).unwrap())
+                        .unwrap_or_default()
                 },
             )
         }

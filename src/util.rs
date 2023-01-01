@@ -58,7 +58,7 @@ pub fn mod_diff(x: u8, y: u8, r: u32) -> i32 {
         dl = (x - y) as i32;
         dr = (y + r - x) as i32;
     }
-    std::cmp::min(dl, dr)
+    core::cmp::min(dl, dr)
 }
 
 #[cfg(feature = "diff")]

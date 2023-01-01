@@ -215,24 +215,27 @@ impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const COD
     /// Compute the hash of a TLSH.
     ///
     /// If `showvers` is true, the hash is prefixed by `T1`.
-    pub fn hash(&self, showvers: bool) -> String {
-        let mut hash = String::with_capacity(TLSH_STRING_LEN_REQ);
+    pub fn hash(&self, showvers: bool) -> [u8; TLSH_STRING_LEN_REQ] {
+        let mut hash = [0; TLSH_STRING_LEN_REQ];
 
+        let mut i = 0;
         if showvers {
-            hash.push_str("T1");
+            hash[i] = b'T';
+            hash[i + 1] = b'1';
+            i += 2;
         }
 
         for k in &self.checksum {
-            to_hex(&mut hash, swap_byte(*k));
+            to_hex(&mut hash, &mut i, swap_byte(*k));
         }
-        to_hex(&mut hash, swap_byte(self.lvalue));
+        to_hex(&mut hash, &mut i, swap_byte(self.lvalue));
 
         // TODO: is there an endianness issue here?
         let qb = (self.q2_ratio << 4) | self.q1_ratio;
-        to_hex(&mut hash, swap_byte(qb));
+        to_hex(&mut hash, &mut i, swap_byte(qb));
 
         for c in self.code.iter().rev() {
-            to_hex(&mut hash, *c);
+            to_hex(&mut hash, &mut i, *c);
         }
 
         hash
@@ -289,7 +292,7 @@ impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const COD
     }
 }
 
-fn to_hex(s: &mut String, b: u8) {
+fn to_hex(s: &mut [u8], s_idx: &mut usize, b: u8) {
     const HEX_LOOKUP: &[u8] = b"000102030405060708090A0B0C0D0E0F\
     101112131415161718191A1B1C1D1E1F\
     202122232425262728292A2B2C2D2E2F\
@@ -308,6 +311,7 @@ fn to_hex(s: &mut String, b: u8) {
     F0F1F2F3F4F5F6F7F8F9FAFBFCFDFEFF";
 
     let i = usize::from(b) * 2;
-    s.push(char::from(HEX_LOOKUP[i]));
-    s.push(char::from(HEX_LOOKUP[i + 1]));
+    s[*s_idx] = HEX_LOOKUP[i];
+    s[*s_idx + 1] = HEX_LOOKUP[i + 1];
+    *s_idx += 2;
 }

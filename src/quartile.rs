@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use core::cmp::Ordering;
 
 pub fn get_quartiles<const EFF_BUCKETS: usize>(bucket: &[u32]) -> (u32, u32, u32) {
     let mut short_cut_left = [0; EFF_BUCKETS];
@@ -11,7 +11,10 @@ pub fn get_quartiles<const EFF_BUCKETS: usize>(bucket: &[u32]) -> (u32, u32, u32
     let q2;
     let mut q3 = 0;
 
-    let mut bucket_copy: Vec<u32> = bucket.iter().take(end + 1).copied().collect();
+    let mut bucket_copy = [0u32; EFF_BUCKETS];
+    for i in 0..EFF_BUCKETS {
+        bucket_copy[i] = bucket[i];
+    }
 
     let mut spl = 0;
     let mut spr = 0;
