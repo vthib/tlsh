@@ -30,7 +30,7 @@ macro_rules! do_hash_test {
                     let mut tlsh = <$type>::new();
                     tlsh.update(contents);
                     tlsh.build()
-                        .map(|v| String::from_utf8(v.hash(true).to_vec()).unwrap())
+                        .map(|v| String::from_utf8(v.hash().to_vec()).unwrap())
                         .unwrap_or_default()
                 },
             )

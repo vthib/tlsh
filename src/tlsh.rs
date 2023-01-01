@@ -235,30 +235,25 @@ impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const COD
 {
     /// Compute the hash of a TLSH.
     ///
-    /// If `showvers` is true, the hash is prefixed by `T1`.
+    /// The hash is always prefixed by `T1` (`showvers=1` in the original TLSH version).
+    /// This is due to the no_std implementation and the need to have a fixed-length result.
+    /// Use a subslice on the result if you don't need this prefix.
     ///
     /// ```
     /// let data = b"Lorem ipsum dolor sit amet, consectetur adipiscing elit";
     /// let tlsh = tlsh2::TlshDefaultBuilder::build_from(data)
     ///     .expect("should have generated a TLSH");
     /// assert_eq!(
-    ///     tlsh.hash(false).as_slice(),
-    ///     b"2D900249414E0BD59A46503F3ADA802AE50825242B2590561CF690599112214C051556\0\0",
-    /// );
-    /// assert_eq!(
-    ///     tlsh.hash(true).as_slice(),
+    ///     tlsh.hash().as_slice(),
     ///     b"T12D900249414E0BD59A46503F3ADA802AE50825242B2590561CF690599112214C051556",
     /// );
     /// ```
-    pub fn hash(&self, showvers: bool) -> [u8; TLSH_STRING_LEN_REQ] {
+    pub fn hash(&self) -> [u8; TLSH_STRING_LEN_REQ] {
         let mut hash = [0; TLSH_STRING_LEN_REQ];
 
-        let mut i = 0;
-        if showvers {
-            hash[i] = b'T';
-            hash[i + 1] = b'1';
-            i += 2;
-        }
+        hash[0] = b'T';
+        hash[1] = b'1';
+        let mut i = 2;
 
         for k in &self.checksum {
             to_hex(&mut hash, &mut i, swap_byte(*k));

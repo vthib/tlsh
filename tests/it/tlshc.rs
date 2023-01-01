@@ -1,13 +1,11 @@
 // Those tests comes from tlshc: <https://github.com/avast/tlshc>
 // See <https://github.com/avast/tlshc/blob/bb91fef822/tests/test_vectors.cpp>
 
-fn check(bytes: &[u8], expected_hash: &str) {
+fn check(bytes: &[u8], expected_hash: &[u8]) {
     let mut tlsh = tlsh2::TlshDefaultBuilder::new();
     tlsh.update(bytes);
     assert_eq!(
-        tlsh.build()
-            .map(|v| String::from_utf8(v.hash(true).to_vec()).unwrap())
-            .unwrap_or_default(),
+        tlsh.build().map(|v| v.hash().to_vec()).unwrap_or_default(),
         expected_hash
     );
 }
@@ -21,7 +19,7 @@ fn test_vector_1() {
 
     check(
         str1,
-        "T1F7D0024A251C5294648A1888438D98B292C8C51161211421643460022908221DCD8551",
+        b"T1F7D0024A251C5294648A1888438D98B292C8C51161211421643460022908221DCD8551",
     );
 }
 
@@ -43,7 +41,7 @@ fn test_vector_2() {
 
     check(
         str1,
-        "T1BA11B9370D7A075140411376AB64CFAFF71860042A52BFA94CF0FB1FB197E648362268",
+        b"T1BA11B9370D7A075140411376AB64CFAFF71860042A52BFA94CF0FB1FB197E648362268",
     );
 }
 
@@ -51,7 +49,7 @@ fn test_vector_2() {
 fn test_vector_3() {
     let str1 = b"This text is too short for tlsh by exactly 1 byte";
 
-    check(str1, "");
+    check(str1, b"");
 }
 
 #[test]
@@ -60,6 +58,6 @@ fn test_vector_4() {
 
     check(
         str1,
-        "T1CDA00241BFCB83B3E0D60948133F2495D35CD5E545A3E224AE81555945131B6467E3D6",
+        b"T1CDA00241BFCB83B3E0D60948133F2495D35CD5E545A3E224AE81555945131B6467E3D6",
     );
 }

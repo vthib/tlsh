@@ -26,7 +26,7 @@
 //! // Then, the TLSH object can be used to generated a hash or compute
 //! // distances
 //! assert_eq!(
-//!     tlsh.hash(true),
+//!     tlsh.hash(),
 //!     b"T184A022B383C2A2A20ACB0830880CF0202CCAC080033A023800338\
 //!       A30B0880AA8E0BE38".as_slice(),
 //! );
