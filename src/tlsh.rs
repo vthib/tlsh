@@ -1,9 +1,9 @@
 use crate::pearson::{b_mapping, fast_b_mapping};
 use crate::quartile::get_quartiles;
 use crate::util::{l_capturing, swap_byte};
+use crate::BUCKETS;
 
 const SLIDING_WND_SIZE: usize = 5;
-const BUCKETS: usize = 256;
 
 const RNG_SIZE: usize = SLIDING_WND_SIZE;
 

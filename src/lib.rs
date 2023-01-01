@@ -13,6 +13,8 @@ mod quartile;
 mod tlsh;
 mod util;
 
+const BUCKETS: usize = 256;
+
 pub use crate::tlsh::{Tlsh, TlshBuilder};
 
 /// Hasher with 256 buckets and a 1 byte checksum.
