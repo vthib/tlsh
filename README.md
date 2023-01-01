@@ -4,7 +4,7 @@
 [![Crates.io](https://img.shields.io/crates/v/tlsh2.svg)](https://crates.io/crates/tlsh2)
 [![Documentation](https://docs.rs/tlsh2/badge.svg)](https://docs.rs/tlsh2)
 
-Rust port of the [TLSH hash function](https://github.com/trendmicro/tlsh).
+Rust port of the [TLSH library](https://github.com/trendmicro/tlsh).
 The code is kept close to the original C++ version, to limit bugs and help maintainability
 
 This crate is `no_std` and different configurations of bucket numbers and checksum length
