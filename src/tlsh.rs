@@ -141,7 +141,7 @@ impl<
     }
 
     /// Generate a TLSH object, or None if the object is not valid.
-    pub fn build(&self) -> Option<Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ>> {
+    pub fn build(&self) -> Option<Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ, CODE_SIZE>> {
         if self.data_len < MIN_DATA_LENGTH {
             return None;
         }
@@ -167,24 +167,20 @@ impl<
             return None;
         }
 
-        let code: Vec<u8> = self
-            .a_bucket
-            .chunks(4)
-            .take(CODE_SIZE)
-            .map(|slice| {
-                let mut h = 0_u8;
-                for (j, k) in slice.iter().enumerate() {
-                    if q3 < *k {
-                        h += 3 << (j * 2);
-                    } else if q2 < *k {
-                        h += 2 << (j * 2);
-                    } else if q1 < *k {
-                        h += 1 << (j * 2);
-                    }
+        let mut code: [u8; CODE_SIZE] = [0; CODE_SIZE];
+        for (i, slice) in self.a_bucket.chunks(4).take(CODE_SIZE).enumerate() {
+            let mut h = 0_u8;
+            for (j, k) in slice.iter().enumerate() {
+                if q3 < *k {
+                    h += 3 << (j * 2);
+                } else if q2 < *k {
+                    h += 2 << (j * 2);
+                } else if q1 < *k {
+                    h += 1 << (j * 2);
                 }
-                h
-            })
-            .collect();
+            }
+            code[i] = h;
+        }
 
         let lvalue = l_capturing(self.data_len as u32);
         let q1_ratio = (((((q1 * 100) as f32) / (q3 as f32)) as u32) % 16) as u8;
@@ -201,16 +197,20 @@ impl<
 }
 
 /// TLSH object.
-pub struct Tlsh<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize> {
+pub struct Tlsh<
+    const TLSH_CHECKSUM_LEN: usize,
+    const TLSH_STRING_LEN_REQ: usize,
+    const CODE_SIZE: usize,
+> {
     lvalue: u8,
     q1_ratio: u8,
     q2_ratio: u8,
     checksum: [u8; TLSH_CHECKSUM_LEN],
-    code: Vec<u8>,
+    code: [u8; CODE_SIZE],
 }
 
-impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize>
-    Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ>
+impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const CODE_SIZE: usize>
+    Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ, CODE_SIZE>
 {
     /// Compute the hash of a TLSH.
     ///
