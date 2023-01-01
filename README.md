@@ -32,6 +32,7 @@ assert_eq!(
     b"T184A022B383C2A2A20ACB0830880CF0202CCAC080033A023800338\
       A30B0880AA8E0BE38".as_slice(),
 );
+// The `diff` feature is required for this computation.
 assert_eq!(tlsh.diff(&tlsh2, true), 209);
 ```
 
