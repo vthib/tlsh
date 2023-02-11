@@ -12,9 +12,9 @@ where
         let expected_hash = line.next().unwrap();
         let filepath = line.next().unwrap();
 
-        let fullpath = format!("tests/assets/tlsh/{}", filepath);
+        let fullpath = format!("tests/assets/tlsh/{filepath}");
         let contents = std::fs::read(&fullpath)
-            .unwrap_or_else(|e| panic!("cannot read file {:?}: {}", fullpath, e));
+            .unwrap_or_else(|e| panic!("cannot read file {fullpath:?}: {e}"));
 
         assert_eq!(&compute_hash(&contents), expected_hash);
     }
