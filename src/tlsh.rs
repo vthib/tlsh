@@ -260,9 +260,8 @@ impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const COD
         }
         to_hex(&mut hash, &mut i, swap_byte(self.lvalue));
 
-        // TODO: is there an endianness issue here?
-        let qb = (self.q2_ratio << 4) | self.q1_ratio;
-        to_hex(&mut hash, &mut i, swap_byte(qb));
+        let qb = (self.q1_ratio << 4) | self.q2_ratio;
+        to_hex(&mut hash, &mut i, qb);
 
         for c in self.code.iter().rev() {
             to_hex(&mut hash, &mut i, *c);
