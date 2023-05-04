@@ -1,14 +1,7 @@
 // Those tests comes from tlshc: <https://github.com/avast/tlshc>
 // See <https://github.com/avast/tlshc/blob/bb91fef822/tests/test_vectors.cpp>
 
-fn check(bytes: &[u8], expected_hash: &[u8]) {
-    let mut tlsh = tlsh2::TlshDefaultBuilder::new();
-    tlsh.update(bytes);
-    assert_eq!(
-        tlsh.build().map(|v| v.hash().to_vec()).unwrap_or_default(),
-        expected_hash
-    );
-}
+use super::misc::check;
 
 #[test]
 fn test_vector_1() {
