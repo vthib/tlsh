@@ -34,7 +34,7 @@ pub fn l_capturing(len: u32) -> u8 {
         } else {
             bottom = idx + 1;
         }
-        idx = (bottom + top) / 2;
+        idx = (((bottom as u16) + (top as u16)) / 2) as u8;
     }
 }
 
