@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2023-07-30
+
+### Added
+
+- Added FromStr implementation for `Tlsh`, to be able to build a `Tlsh` from a hash string.
+  See #5.
+- Added type aliases for the `Tlsh` object, mirroring the aliases already existing on
+  the `TlshBuilder` object.
+  See [f242ca9](https://github.com/vthib/tlsh/commit/f242ca963f46ac59c96b0b3af23f0263ed7d18c4).
+
 ## [0.2.1] - 2023-05-04
 
 ### Fixed
