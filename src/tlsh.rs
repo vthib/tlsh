@@ -1,3 +1,5 @@
+use core::str::FromStr;
+
 use crate::pearson::{b_mapping, fast_b_mapping};
 use crate::quartile::get_quartiles;
 use crate::util::{l_capturing, swap_byte};
@@ -343,6 +345,61 @@ impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const COD
 
         diff
     }
+
+    fn from_hash(s: &[u8]) -> Option<Self> {
+        if s.len() != TLSH_STRING_LEN_REQ || s[0] != b'T' || s[1] != b'1' {
+            return None;
+        }
+
+        let mut i = 2;
+
+        let mut checksum = [0; TLSH_CHECKSUM_LEN];
+        for k in &mut checksum {
+            *k = swap_byte(from_hex(s, &mut i)?);
+        }
+
+        let lvalue = swap_byte(from_hex(s, &mut i)?);
+        let qb = from_hex(s, &mut i)?;
+        let q1_ratio = qb >> 4;
+        let q2_ratio = qb & 0x0F;
+
+        let mut code = [0; CODE_SIZE];
+        for c in code.iter_mut().rev() {
+            *c = from_hex(s, &mut i)?;
+        }
+
+        Some(Self {
+            lvalue,
+            q1_ratio,
+            q2_ratio,
+            checksum,
+            code,
+        })
+    }
+}
+
+/// Error returned when failing to convert a hash string to a `Tlsh` object.
+#[derive(Debug, PartialEq, Eq)]
+pub struct ParseError;
+
+/// Parse a hash string and build the corresponding `Tlsh` object.
+impl<const TLSH_CHECKSUM_LEN: usize, const TLSH_STRING_LEN_REQ: usize, const CODE_SIZE: usize>
+    FromStr for Tlsh<TLSH_CHECKSUM_LEN, TLSH_STRING_LEN_REQ, CODE_SIZE>
+{
+    type Err = ParseError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::from_hash(s.as_bytes()).ok_or(ParseError)
+    }
+}
+
+fn from_hex(s: &[u8], i: &mut usize) -> Option<u8> {
+    let a = char::from(s[*i]).to_digit(16)?;
+    *i += 1;
+    let b = char::from(s[*i]).to_digit(16)?;
+    *i += 1;
+
+    Some(((a as u8) << 4) | (b as u8))
 }
 
 fn to_hex(s: &mut [u8], s_idx: &mut usize, b: u8) {
