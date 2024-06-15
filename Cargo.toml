@@ -13,6 +13,9 @@ categories = ["algorithms"]
 # Enable ability to compute diff score between two TLSH.
 # This is behind a feature flag as it adds a 64k static array to the binary.
 diff = []
+# Enable joint lookup for faster Pearson hashing.
+# This is behind a feature flag as it adds a 64k static array to the binary.
+fast = []
 
 [dev-dependencies]
 glob = "0.3.0"

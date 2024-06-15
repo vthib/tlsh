@@ -29,19 +29,50 @@ const V_TABLE48: [u8; 256] = [
     16, 43, 23, 13, 40, 17,
 ];
 
+// Two-byte lookup for Pearson's sample random table
+#[cfg(feature = "fast")]
+const JOINT_V_TABLE: [[u8; 256]; 256] = {
+    let mut table = [[0; 256]; 256];
+    let mut i = 0;
+    while i < 256 {
+        let mut j = 0;
+        while j < 256 {
+            table[i][j] = V_TABLE[V_TABLE[j] as usize ^ i];
+            j += 1;
+        }
+        i += 1;
+    }
+    table
+};
+
 // Pearson's algorithm
 pub fn b_mapping(salt: u8, i: u8, j: u8, k: u8) -> u8 {
     let mut h = 0;
     h = V_TABLE[usize::from(h ^ salt)];
-    h = V_TABLE[usize::from(h ^ i)];
-    h = V_TABLE[usize::from(h ^ j)];
+    #[cfg(feature = "fast")]
+    {
+        h = JOINT_V_TABLE[usize::from(j)][usize::from(h ^ i)];
+    }
+    #[cfg(not(feature = "fast"))]
+    {
+        h = V_TABLE[usize::from(h ^ i)];
+        h = V_TABLE[usize::from(h ^ j)];
+    }
     h = V_TABLE[usize::from(h ^ k)];
     h
 }
 
 pub fn fast_b_mapping<const EFF_BUCKETS: usize>(salt: u8, i: u8, j: u8, k: u8) -> u8 {
-    let mut h = V_TABLE[usize::from(salt ^ i)];
-    h = V_TABLE[usize::from(h ^ j)];
+    let mut h = salt;
+    #[cfg(feature = "fast")]
+    {
+        h = JOINT_V_TABLE[usize::from(j)][usize::from(h ^ i)];
+    }
+    #[cfg(not(feature = "fast"))]
+    {
+        h = V_TABLE[usize::from(h ^ i)];
+        h = V_TABLE[usize::from(h ^ j)];
+    }
     if EFF_BUCKETS == 48 {
         V_TABLE48[usize::from(h ^ k)]
     } else {
