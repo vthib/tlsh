@@ -20,6 +20,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test
       - run: cargo test --features diff
+      - run: cargo test --features fast
 
   clippy:
     name: Clippy
@@ -31,6 +32,7 @@ jobs:
           components: clippy
       - run: cargo clippy --tests
       - run: cargo clippy --tests --features diff
+      - run: cargo clippy --tests --features fast
 
   rustfmt:
     name: Rustfmt
@@ -54,3 +56,4 @@ jobs:
           target: s390x-unknown-linux-gnu
       - run: cargo test
       - run: cargo test --features diff
+      - run: cargo test --features fast

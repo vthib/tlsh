@@ -104,11 +104,11 @@ impl<
                 self.a_bucket[usize::from(r)] += 1;
                 let r = fast_b_mapping::<EFF_BUCKETS>(12, b_0, b_1, b_3);
                 self.a_bucket[usize::from(r)] += 1;
+                let r = fast_b_mapping::<EFF_BUCKETS>(84, b_0, b_1, b_4);
+                self.a_bucket[usize::from(r)] += 1;
                 let r = fast_b_mapping::<EFF_BUCKETS>(178, b_0, b_2, b_3);
                 self.a_bucket[usize::from(r)] += 1;
                 let r = fast_b_mapping::<EFF_BUCKETS>(166, b_0, b_2, b_4);
-                self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping::<EFF_BUCKETS>(84, b_0, b_1, b_4);
                 self.a_bucket[usize::from(r)] += 1;
                 let r = fast_b_mapping::<EFF_BUCKETS>(230, b_0, b_3, b_4);
                 self.a_bucket[usize::from(r)] += 1;

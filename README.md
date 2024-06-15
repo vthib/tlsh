@@ -43,5 +43,7 @@ Those configurations are available:
 - 256 buckets and 3-byte checksum.
 - 48 buckets and 1-byte checksum.
 
+The `fast` feature speeds up TLSH generation but adds a 64kB lookup table.
+
 The `threaded` and `private` options that exists in the original TLSH version
 are not yet implemented.
