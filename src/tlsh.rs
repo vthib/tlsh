@@ -7,7 +7,7 @@ use crate::BUCKETS;
 
 const SLIDING_WND_SIZE: usize = 5;
 
-const RNG_SIZE: usize = SLIDING_WND_SIZE;
+const RNG_SIZE: usize = SLIDING_WND_SIZE - 1;
 
 /// Builder object, processing streams of bytes to generate [`Tlsh`] objects.
 ///
@@ -21,7 +21,7 @@ pub struct TlshBuilder<
     const MIN_DATA_LENGTH: usize,
 > {
     a_bucket: [u32; BUCKETS],
-    slide_window: [u8; SLIDING_WND_SIZE],
+    slide_window: [u8; RNG_SIZE],
     checksum: [u8; TLSH_CHECKSUM_LEN],
     data_len: usize,
 }
@@ -52,7 +52,7 @@ impl<
     pub fn new() -> Self {
         Self {
             a_bucket: [0; BUCKETS],
-            slide_window: [0; SLIDING_WND_SIZE],
+            slide_window: [0; RNG_SIZE],
             checksum: [0; TLSH_CHECKSUM_LEN],
             data_len: 0,
         }
@@ -83,81 +83,38 @@ impl<
     pub fn update(&mut self, data: &[u8]) {
         // TODO: TLSH_OPTION_THREADED | TLSH_OPTION_PRIVATE
 
-        let mut j = self.data_len % RNG_SIZE;
         let mut fed_len = self.data_len;
 
         for b in data {
-            self.slide_window[j] = *b;
+            let b_0 = *b;
+            let [b_4, b_3, b_2, b_1] = self.slide_window;
 
             if fed_len >= 4 {
-                let j_1 = (j + RNG_SIZE - 1) % RNG_SIZE;
-                let j_2 = (j + RNG_SIZE - 2) % RNG_SIZE;
-                let j_3 = (j + RNG_SIZE - 3) % RNG_SIZE;
-                let j_4 = (j + RNG_SIZE - 4) % RNG_SIZE;
-
                 for k in 0..TLSH_CHECKSUM_LEN {
                     if k == 0 {
-                        self.checksum[k] = fast_b_mapping::<EFF_BUCKETS>(
-                            1,
-                            self.slide_window[j],
-                            self.slide_window[j_1],
-                            self.checksum[k],
-                        );
+                        self.checksum[k] =
+                            fast_b_mapping::<EFF_BUCKETS>(1, b_0, b_1, self.checksum[k]);
                     } else {
-                        self.checksum[k] = b_mapping(
-                            self.checksum[k - 1],
-                            self.slide_window[j],
-                            self.slide_window[j_1],
-                            self.checksum[k],
-                        );
+                        self.checksum[k] =
+                            b_mapping(self.checksum[k - 1], b_0, b_1, self.checksum[k]);
                     }
                 }
 
-                let r = fast_b_mapping::<EFF_BUCKETS>(
-                    49,
-                    self.slide_window[j],
-                    self.slide_window[j_1],
-                    self.slide_window[j_2],
-                );
+                let r = fast_b_mapping::<EFF_BUCKETS>(49, b_0, b_1, b_2);
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping::<EFF_BUCKETS>(
-                    12,
-                    self.slide_window[j],
-                    self.slide_window[j_1],
-                    self.slide_window[j_3],
-                );
+                let r = fast_b_mapping::<EFF_BUCKETS>(12, b_0, b_1, b_3);
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping::<EFF_BUCKETS>(
-                    178,
-                    self.slide_window[j],
-                    self.slide_window[j_2],
-                    self.slide_window[j_3],
-                );
+                let r = fast_b_mapping::<EFF_BUCKETS>(178, b_0, b_2, b_3);
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping::<EFF_BUCKETS>(
-                    166,
-                    self.slide_window[j],
-                    self.slide_window[j_2],
-                    self.slide_window[j_4],
-                );
+                let r = fast_b_mapping::<EFF_BUCKETS>(166, b_0, b_2, b_4);
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping::<EFF_BUCKETS>(
-                    84,
-                    self.slide_window[j],
-                    self.slide_window[j_1],
-                    self.slide_window[j_4],
-                );
+                let r = fast_b_mapping::<EFF_BUCKETS>(84, b_0, b_1, b_4);
                 self.a_bucket[usize::from(r)] += 1;
-                let r = fast_b_mapping::<EFF_BUCKETS>(
-                    230,
-                    self.slide_window[j],
-                    self.slide_window[j_3],
-                    self.slide_window[j_4],
-                );
+                let r = fast_b_mapping::<EFF_BUCKETS>(230, b_0, b_3, b_4);
                 self.a_bucket[usize::from(r)] += 1;
             }
             fed_len += 1;
-            j = (j + 1) % RNG_SIZE;
+            self.slide_window = [b_3, b_2, b_1, b_0];
         }
 
         self.data_len += data.len();
