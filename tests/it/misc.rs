@@ -1,6 +1,17 @@
 pub fn check(bytes: &[u8], expected_hash: &[u8]) {
+    // Test single update
     let mut tlsh = tlsh2::TlshDefaultBuilder::new();
     tlsh.update(bytes);
+    assert_eq!(
+        tlsh.build().map(|v| v.hash().to_vec()).unwrap_or_default(),
+        expected_hash
+    );
+
+    // Test by groups of 3 bytes
+    let mut tlsh = tlsh2::TlshDefaultBuilder::new();
+    for chunk in bytes.chunks(3) {
+        tlsh.update(chunk);
+    }
     assert_eq!(
         tlsh.build().map(|v| v.hash().to_vec()).unwrap_or_default(),
         expected_hash
