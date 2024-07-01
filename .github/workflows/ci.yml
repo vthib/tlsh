@@ -20,7 +20,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo test
       - run: cargo test --features diff
-      - run: cargo test --features fast
+      # Use release mode, otherwise the const table
+      # used with the fast feature leads to very slow tests.
+      - run: cargo test --release --features fast
 
   clippy:
     name: Clippy
@@ -56,4 +58,6 @@ jobs:
           target: s390x-unknown-linux-gnu
       - run: cargo test
       - run: cargo test --features diff
-      - run: cargo test --features fast
+      # Use release mode, otherwise the const table
+      # used with the fast feature leads to very slow tests.
+      - run: cargo test --release --features fast
