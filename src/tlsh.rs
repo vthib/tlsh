@@ -85,6 +85,8 @@ impl<
 
         let mut fed_len = self.data_len;
 
+        // XXX: this code has been tweaked compared to the C++ version, to improve performances.
+        // See <https://github.com/vthib/tlsh/pull/8>.
         for b in data {
             let b_0 = *b;
             let [b_4, b_3, b_2, b_1] = self.slide_window;
