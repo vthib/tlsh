@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2024-07-02
+
+### Added
+
+- Added `fast` feature to improve speed of hashing algorithm, to the cost of an additional
+  64k table. See [#8](https://github.com/vthib/tlsh/pull/8).
+
+### Changed
+
+- Improved hashing algorithm performance. See [#8](https://github.com/vthib/tlsh/pull/8).
+
 ## [0.3.0] - 2023-07-30
 
 ### Added
