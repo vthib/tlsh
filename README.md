@@ -43,7 +43,16 @@ Those configurations are available:
 - 256 buckets and 3-byte checksum.
 - 48 buckets and 1-byte checksum.
 
-The `fast` feature speeds up TLSH generation but adds a 64kB lookup table.
+## Features
+
+- The `diff` feature adds the ability to compute the difference between two hashes,
+  but adds a 64kB lookup table
+- The `fast` feature speeds up TLSH generation but adds an additional 64kB lookup table.
 
 The `threaded` and `private` options that exists in the original TLSH version
 are not yet implemented.
+
+## Benchmarks
+
+Some benchmarks are [available here](https://github.com/Havunen/tlsh_benchmark).
+Thanks to [@Havunen](https://github.com/Havunen) for creating them.
