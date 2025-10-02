@@ -149,19 +149,25 @@ impl<
             return None;
         }
 
+        // Safety: this expect is eliminated at compile time, as the compiler can
+        // trivially verify that EFF_BUCKETS <= BUCKETS.
+        let bucket: &[u32; EFF_BUCKETS] = (&self.a_bucket[..EFF_BUCKETS])
+            .try_into()
+            .expect("EFF_BUCKETS is bigger than BUCKETS");
+
         let mut code: [u8; CODE_SIZE] = [0; CODE_SIZE];
-        for (i, slice) in self.a_bucket.chunks(4).take(CODE_SIZE).enumerate() {
-            let mut h = 0_u8;
-            for (j, k) in slice.iter().enumerate() {
-                if q3 < *k {
-                    h += 3 << (j * 2);
-                } else if q2 < *k {
-                    h += 2 << (j * 2);
-                } else if q1 < *k {
-                    h += 1 << (j * 2);
-                }
-            }
-            code[i] = h;
+        for (c, slice) in code.iter_mut().zip(bucket.chunks(4)) {
+            *c = slice.iter().rev().fold(0u8, |h, &k| {
+                (if q3 < k {
+                    3
+                } else if q2 < k {
+                    2
+                } else if q1 < k {
+                    1
+                } else {
+                    0
+                }) | h << 2
+            });
         }
 
         let lvalue = l_capturing(self.data_len as u32);
