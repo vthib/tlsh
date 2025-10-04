@@ -5,7 +5,6 @@
 [![Documentation](https://docs.rs/tlsh2/badge.svg)](https://docs.rs/tlsh2)
 
 Rust port of the [TLSH library](https://github.com/trendmicro/tlsh).
-The code is kept close to the original C++ version, to limit bugs and help maintainability
 
 This crate is `no_std` and different configurations of bucket numbers and checksum length
 are handled as generics, making every configuration properly optimized.
@@ -56,3 +55,8 @@ are not yet implemented.
 
 Some benchmarks are [available here](https://github.com/Havunen/tlsh_benchmark).
 Thanks to [@Havunen](https://github.com/Havunen) for creating them.
+
+## Contributions
+
+Thanks to [@barrbrain](https://github.com/barrbrain) for contributing several
+performance improvements.
