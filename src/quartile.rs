@@ -1,15 +1,9 @@
-use crate::BUCKETS;
-
-pub fn get_quartiles<const EFF_BUCKETS: usize>(bucket: &[u32; BUCKETS]) -> (u32, u32, u32) {
+pub fn get_quartiles<const EFF_BUCKETS: usize>(bucket: &[u32; EFF_BUCKETS]) -> (u32, u32, u32) {
     let p1 = EFF_BUCKETS / 4 - 1;
     let p2 = EFF_BUCKETS / 2 - 1;
     let p3 = EFF_BUCKETS - EFF_BUCKETS / 4 - 1;
 
-    // Safety: this expect is eliminated at compile time, as the compiler can
-    // trivially verify that EFF_BUCKETS <= BUCKETS.
-    let mut bucket_copy: [u32; EFF_BUCKETS] = bucket[..EFF_BUCKETS]
-        .try_into()
-        .expect("EFF_BUCKETS is bigger than BUCKETS");
+    let mut bucket_copy: [u32; EFF_BUCKETS] = *bucket;
 
     // XXX: this code replaces the C++ version with a Rust core equivalent.
     // See <https://github.com/vthib/tlsh/pull/17>.
