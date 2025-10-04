@@ -128,7 +128,13 @@ impl<
             return None;
         }
 
-        let (q1, q2, q3) = get_quartiles::<EFF_BUCKETS>(&self.a_bucket);
+        // Safety: this expect is eliminated at compile time, as the compiler can
+        // trivially verify that EFF_BUCKETS <= BUCKETS.
+        let bucket: &[u32; EFF_BUCKETS] = (&self.a_bucket[..EFF_BUCKETS])
+            .try_into()
+            .expect("EFF_BUCKETS is bigger than BUCKETS");
+
+        let (q1, q2, q3) = get_quartiles::<EFF_BUCKETS>(bucket);
         // issue #79 - divide by 0 if q3 == 0
         if q3 == 0 {
             return None;
@@ -148,12 +154,6 @@ impl<
         } else if nonzero <= 2 * CODE_SIZE {
             return None;
         }
-
-        // Safety: this expect is eliminated at compile time, as the compiler can
-        // trivially verify that EFF_BUCKETS <= BUCKETS.
-        let bucket: &[u32; EFF_BUCKETS] = (&self.a_bucket[..EFF_BUCKETS])
-            .try_into()
-            .expect("EFF_BUCKETS is bigger than BUCKETS");
 
         let mut code: [u8; CODE_SIZE] = [0; CODE_SIZE];
         for (c, slice) in code.iter_mut().zip(bucket.chunks(4)) {
