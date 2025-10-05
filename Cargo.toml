@@ -1,6 +1,6 @@
 [package]
 name = "tlsh2"
-version = "0.4.0"
+version = "1.0.0"
 edition = "2021"
 description = "A rust implementation of the TLSH algorithm"
 repository = "https://github.com/vthib/tlsh"
