@@ -185,6 +185,7 @@ impl<
 }
 
 /// TLSH object, from which a hash or a distance can be computed.
+#[derive(Clone, Copy)]
 pub struct Tlsh<
     const TLSH_CHECKSUM_LEN: usize,
     const TLSH_STRING_LEN_REQ: usize,
