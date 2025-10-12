@@ -13,6 +13,7 @@ const RNG_SIZE: usize = SLIDING_WND_SIZE - 1;
 ///
 /// You should never provide your own values for the generics, but instead use the pre-configured
 /// types such as [`crate::TlshBuilder256_1`] or [`crate::TlshBuilder128_3`].
+#[derive(Clone)]
 pub struct TlshBuilder<
     const EFF_BUCKETS: usize,
     const TLSH_CHECKSUM_LEN: usize,
@@ -185,6 +186,7 @@ impl<
 }
 
 /// TLSH object, from which a hash or a distance can be computed.
+#[derive(Clone)]
 pub struct Tlsh<
     const TLSH_CHECKSUM_LEN: usize,
     const TLSH_STRING_LEN_REQ: usize,
