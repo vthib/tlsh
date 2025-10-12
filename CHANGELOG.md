@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-12
+
+### Added
+
+- Added `Clone` trait to `TlshBuilder` and `Tlsh` objects. [#19](https://github.com/vthib/tlsh/pull/19).
+
 ## [1.0.0] - 2025-10-04
 
 New release is 1.0.0 because this library is mature, there is no need to keep using
